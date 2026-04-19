@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lebenretten System</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: #0b0f14;
+  color: white;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background: #111827;
+}
+
+h1 { color: #4ade80; font-size: 18px; }
+
+.section {
+  max-width: 900px;
+  margin: auto;
+  padding: 60px 20px;
+}
+
+.card {
+  background: #111827;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 15px;
+}
+
+.btn {
+  padding: 12px 20px;
+  background: #4ade80;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+#dashboard {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🚑 Lebenretten System</h1>
+  <div id="status">Nicht eingeloggt</div>
+</header>
+
+<section class="section">
+
+  <!-- LOGIN -->
+  <div class="card" id="loginBox">
+    <h2>Login</h2>
+
+    <input id="email" placeholder="E-Mail">
+    <input id="password" type="password" placeholder="Passwort">
+
+    <button class="btn" onclick="login()">Einloggen</button>
+    <button class="btn" onclick="signup()">Registrieren</button>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="card" id="dashboard">
+    <h2>🏥 Krankenhaus Dashboard</h2>
+    <p>Du bist eingeloggt im Notfall-System.</p>
+
+    <button class="btn" onclick="logout()">Logout</button>
+  </div>
+
+</section>
+
+<script>
+// 🔥 Supabase Setup (HIER EINTRAGEN)
+const supabaseUrl = "DEINE_SUPABASE_URL";
+const supabaseKey = "DEIN_SUPABASE_ANON_KEY";
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+// LOGIN
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Fehler: " + error.message);
+  } else {
+    showDashboard();
+  }
+}
+
+// REGISTER
+async function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Fehler: " + error.message);
+  } else {
+    alert("Registriert! Bitte Login machen.");
+  }
+}
+
+// LOGOUT
+async function logout() {
+  await supabase.auth.signOut();
+  showLogin();
+}
+
+// UI SWITCH
+function showDashboard() {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+  document.getElementById("status").innerText = "Eingeloggt";
+}
+
+function showLogin() {
+  document.getElementById("loginBox").style.display = "block";
+  document.getElementById("dashboard").style.display = "none";
+  document.getElementById("status").innerText = "Nicht eingeloggt";
+}
+
+// CHECK SESSION
+supabase.auth.getSession().then(({ data }) => {
+  if (data.session) showDashboard();
+});
+</script>
+
+</body>
+</html>
